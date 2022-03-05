@@ -1,0 +1,314 @@
+[
+    {
+        "id": "f59c134939c828e5",
+        "type": "tab",
+        "label": "Projet iot",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "9daab197c18be5d3",
+        "type": "http in",
+        "z": "f59c134939c828e5",
+        "name": "arrivée données",
+        "url": "/lora",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 240,
+        "y": 220,
+        "wires": [
+            [
+                "64ccce43013562df",
+                "838654f69ebe5e2b"
+            ]
+        ]
+    },
+    {
+        "id": "838654f69ebe5e2b",
+        "type": "function",
+        "z": "f59c134939c828e5",
+        "name": "split_data",
+        "func": "msg.payload = {\n                rfid1: msg.payload.uplink_message.decoded_payload.rfid1, \n                rfid2: msg.payload.uplink_message.decoded_payload.rfid2, \n                rfid3: msg.payload.uplink_message.decoded_payload.rfid3, \n                rfid4: msg.payload.uplink_message.decoded_payload.rfid4, \n                rfid5: msg.payload.uplink_message.decoded_payload.rfid5\n            }\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 280,
+        "wires": [
+            [
+                "ab3c67de885ca13e",
+                "f38d5059da8e490e"
+            ]
+        ]
+    },
+    {
+        "id": "45dd50b6ede6131d",
+        "type": "mysql",
+        "z": "f59c134939c828e5",
+        "mydb": "dc5edd439e73a290",
+        "name": "Database ",
+        "x": 1080,
+        "y": 440,
+        "wires": [
+            [
+                "8e3853b647c86240"
+            ]
+        ]
+    },
+    {
+        "id": "64ccce43013562df",
+        "type": "debug",
+        "z": "f59c134939c828e5",
+        "name": "donnees brutes",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "ab3c67de885ca13e",
+        "type": "function",
+        "z": "f59c134939c828e5",
+        "name": "insert_bdd",
+        "func": "msg.payload=[msg.payload.rfid1,msg.payload.rfid2,msg.payload.rfid3,msg.payload.rfid4,msg.payload.rfid5];\nmsg.topic=\"INSERT INTO donnees (`rfid1`,`rfid2`,`rfid3`,`rfid4`,`rfid5`,`date`) VALUES (?,?,?,?,?,NOW());\"\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 830,
+        "y": 400,
+        "wires": [
+            [
+                "45dd50b6ede6131d",
+                "48b8e611b1f50f8a"
+            ]
+        ]
+    },
+    {
+        "id": "f38d5059da8e490e",
+        "type": "debug",
+        "z": "f59c134939c828e5",
+        "name": "donnees traitees",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "48b8e611b1f50f8a",
+        "type": "debug",
+        "z": "f59c134939c828e5",
+        "name": "envoie bdd",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1050,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "275681d1f3e8b2ea",
+        "type": "function",
+        "z": "f59c134939c828e5",
+        "name": "extraction_bdd",
+        "func": "msg.topic =\"SELECT acces FROM donnees WHERE id = (SELECT MAX(id) FROM donnees);\"\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 660,
+        "wires": [
+            [
+                "0dc3e19c0f63858b"
+            ]
+        ]
+    },
+    {
+        "id": "b7fce5ae33bbfa79",
+        "type": "debug",
+        "z": "f59c134939c828e5",
+        "name": "accès",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 770,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "8e3853b647c86240",
+        "type": "delay",
+        "z": "f59c134939c828e5",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "7",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 570,
+        "y": 520,
+        "wires": [
+            [
+                "275681d1f3e8b2ea"
+            ]
+        ]
+    },
+    {
+        "id": "0dc3e19c0f63858b",
+        "type": "mysql",
+        "z": "f59c134939c828e5",
+        "mydb": "dc5edd439e73a290",
+        "name": "Database ",
+        "x": 580,
+        "y": 660,
+        "wires": [
+            [
+                "b7fce5ae33bbfa79",
+                "af6478dfac1f3bf0"
+            ]
+        ]
+    },
+    {
+        "id": "540757be24cc86b2",
+        "type": "http request",
+        "z": "f59c134939c828e5",
+        "name": "downlink",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://eu1.cloud.thethings.network/api/v3/as/applications/rfid1/webhooks/rfid-webhook/devices/eui-70b3d57ed004b877/down/push",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "bearer",
+        "senderr": false,
+        "x": 600,
+        "y": 820,
+        "wires": [
+            [
+                "a6b143dcf5944412"
+            ]
+        ]
+    },
+    {
+        "id": "631d35f9544a9d83",
+        "type": "function",
+        "z": "f59c134939c828e5",
+        "name": "envoie downlink",
+        "func": "return {\n  \"payload\": {\n    \"downlinks\": [{\n      \"f_port\": 15,\n      \"frm_payload\": msg.payload.toString(\"base64\"),\n      \"priority\": \"NORMAL\"\n    }]\n  }\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 820,
+        "wires": [
+            [
+                "540757be24cc86b2"
+            ]
+        ]
+    },
+    {
+        "id": "a6b143dcf5944412",
+        "type": "debug",
+        "z": "f59c134939c828e5",
+        "name": "resultat",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "af6478dfac1f3bf0",
+        "type": "function",
+        "z": "f59c134939c828e5",
+        "name": "buffer",
+        "func": "msg.acces = msg.payload[0].acces;\nmsg.payload = Buffer.from([msg.acces]);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 740,
+        "wires": [
+            [
+                "631d35f9544a9d83",
+                "90c69c78ca90f323"
+            ]
+        ]
+    },
+    {
+        "id": "90c69c78ca90f323",
+        "type": "debug",
+        "z": "f59c134939c828e5",
+        "name": "buffer",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "dc5edd439e73a290",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "127.0.0.1",
+        "port": "3307",
+        "db": "projet i4 iot",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]
