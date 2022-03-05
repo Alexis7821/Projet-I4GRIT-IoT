@@ -1,0 +1,12 @@
+h1{
+	text-align: center;
+}
+
+#infos{
+	background: #70fd5c;
+	margin: 10px 20% 0 20%;
+	padding: 10px;
+	border: 2px solid;
+	border-radius: 30px;
+	text-align: center;
+}
